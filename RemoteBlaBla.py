@@ -842,7 +842,7 @@ def bla_play():
                 auto_repeat[i]= (na, sw.time(), a[2]) if na != None else None
             
         prev_pressed=pressed
-        
+
 hub=TechnicHub()
 hub.system.set_stop_button(None)
 hub.light.blink(Color.WHITE, (200,200, 100, 400))
@@ -854,8 +854,7 @@ if not config_from_parameters(rem.name()):
 while True:
     try:
         bla_play()
-        bla_config()
     except Exception as e:
         hub.light.blink(Color.ORANGE, (100,50))
-        wait(5000) # a lot, yes!
-        raise
+        wait(3000) # a lot, yes!
+    bla_config() 
