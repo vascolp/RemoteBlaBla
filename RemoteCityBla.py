@@ -555,4 +555,3 @@ try:
 except Exception as e:
     hub.light.blink(Color.ORANGE, (100,50))
     wait(5000) # a lot, yes!
-    raise
