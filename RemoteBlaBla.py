@@ -72,7 +72,7 @@ _bla_n_ports=const(4)
 _bla_default_speed=const(1500)
 
 _bla_version_color=Color.CYAN
-_bla_version_num=1
+_bla_version_num=2
 
 # Global variables
 hub=None # the Hub
