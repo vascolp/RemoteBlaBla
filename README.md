@@ -17,4 +17,7 @@ interface, a real YDSWIG interface: you don't see what you get.
 However, once you learn it, you will notice that it is simple.
 No screens attached!
 
+Here is an example video: https://youtu.be/Sl9IE1FV5Xk
+
 There is a users manual in PDF avaiable.
+
