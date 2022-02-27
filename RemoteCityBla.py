@@ -14,24 +14,25 @@
 # configuration. The configuration is saved in the Remote Control.
 # Then you can connect the Remote Control to a City Hub running this program.
 #
-# There is a users manual in PDF avaiable.
 #
-# Version: 0.98
+# There is a users manual in PDF avaiable.
+# https://github.com/vascolp/RemoteBlaBla
+
+# Version: 0.99
 #
 # Author VascoLP
 #
-# Date: December 2021
+# Date: February 2022
 #
 # Installing:
-# Install Pybricks firmware with Remote Bla Bla (this program) included, on a CityHub
-# You should use pybricks firmware beta version v3.1.0c1 on 2021-11-19.
-# It should also run on the soon to be released pybricks version v3.1 firmware.
+# Install Pybricks firmware with Remote Bla Bla (this program) included, on a CityHub.
+# You should use pybricks firmware version v3.1.0 on 2021-12-16 or later.
 #
+
 
 from micropython import const
 from pybricks.hubs import CityHub
 from pybricks.tools import StopWatch
-from pybricks.iodevices import PUPDevice
 from pybricks.pupdevices import DCMotor, Motor, Remote
 from pybricks.parameters import Port, Direction, Stop, Button, Color
 from pybricks.tools import wait
@@ -59,11 +60,10 @@ _bla_shutdown_timeout=const(1000)
 _bla_timeout=const(5*60*1000) # In config mode, after this time shutsdown
 _bla_play_tick=const(10) 
 _bla_init_speed=const(250) # Speed used when initializing motors
-_bla_saved_param_prefix='rb'
-_bla_ports=(Port.A, Port.B)
-_bla_n_ports=const(2)
+bla_n_modes=const(2)
+bla_n_ports=const(2)
+bla_ports=(Port.A,Port.B)
 _bla_default_speed=const(1500)
-
 
 # Global variables
 hub=None # the Hub
@@ -71,14 +71,21 @@ rem=None # the Remote
 
 defined_BLAs=[] # List of defined BLAs
 
-bla_dir12=( Direction.CLOCKWISE, Direction.COUNTERCLOCKWISE )
+bla_dir12=( Direction.CLOCKWISE,        Direction.COUNTERCLOCKWISE )
 bla_dir21=( Direction.COUNTERCLOCKWISE, Direction.CLOCKWISE )
-bla_dir11=( Direction.CLOCKWISE, Direction.CLOCKWISE )
+bla_dir11=( Direction.CLOCKWISE,        Direction.CLOCKWISE )
 bla_dir22=( Direction.COUNTERCLOCKWISE, Direction.COUNTERCLOCKWISE )
 bla_pwr3=(0,33,67,100)
 bla_pwr5=(0,20,40,60,80,100)
 bla_pwr7=(0,14,29,43,57,71,86,100)
 bla_pwr9=(0,11,22,33,44,56,67,78,89,100)
+
+# Parameter saving:
+_bla_saved_param_prefix='Rb'
+_bla_cfg_empty='.'
+_bla_cfg_codes='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/' # Use Base64
+#               0123456789012345678901234567890123456789012345678901234567890123
+#                         1         2         3         4         5         6
 
 ######################################################################
 def get_dir_for_mode(mode_p, n_ports_p):
@@ -93,22 +100,31 @@ def get_dir_for_mode(mode_p, n_ports_p):
 ######################################################################
 class BLABase:
     bla_list=()
-    cfg_codes='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-'
-    cfg_empty='...'
 
     @classmethod
-    def make_from_cfg(cls, cfg_p):
-        #  bbbbb. mmm.pp pppppp
-        p=(cls.cfg_codes.index(cfg_p[0])<<12)|(cls.cfg_codes.index(cfg_p[1])<<6)|(cls.cfg_codes.index(cfg_p[2]))
-        bla=(p>>13)&31
-        mode=(p>>9)&7
-        ports_mask=p&255
-        cfg_ports=[]
-        for i in range(_bla_n_ports):
-            # cfg_ports.append((ports_mask>>(_bla_n_ports-i)*2-2)&3)
-            cfg_ports.append((ports_mask>>(4-i)*2-2)&3) # must be 4...
-        return cls.bla_list[bla][0](bla, None, cfg_ports, mode, *(cls.bla_list[bla][1]))
-    
+    def load_config(cls, name):
+        if len(name)!=14 or name[0:2]!=_bla_saved_param_prefix:
+            wait(100) # for luck
+            return False
+        name=name[2:]
+        try:
+            for i in range(bla_n_modes):
+                if name[i] == _bla_cfg_empty:
+                    break
+                bla=_bla_cfg_codes.index(name[i])
+                mode=(_bla_cfg_codes.index(name[4+i//2])>>i%2*3)&7
+                ports=[_bla_cfg_codes.index(name[p])&3 if name[p]!=_bla_cfg_empty and (_bla_cfg_codes.index(name[p])>>4)==i else 0
+                       for p in range(6,6+bla_n_ports)]
+                defined_BLAs.append(cls.bla_list[bla][0](bla, None, ports, mode, *(cls.bla_list[bla][1])))
+            return  len(defined_BLAs) > 0
+        except ValueError as ve:
+            wait(100) # for luck
+            return False
+        except OSError as os:
+            if os.args[0] == ENODEV:
+                wait(100) # for luck
+            return False
+       
     def __init__(self, bla_p, ports_p, cfg_ports_p, mode_p):
         self.bla=bla_p
         # self.cfg_ports = self.get_cfg_ports(ports_p) if cfg_ports_p == None else cfg_ports_p
@@ -157,9 +173,9 @@ class BLAStepsMotor(BLABase):
                 continue
             d = None
             if p == 1:
-                d=Motor(_bla_ports[i], dir[i%2])
+                d=Motor(bla_ports[i], dir[i%2])
             elif p == 2:
-                d=DCMotor(_bla_ports[i], dir[i%2])
+                d=DCMotor(bla_ports[i], dir[i%2])
             self.devices.append(d)
 
             
@@ -243,7 +259,7 @@ class BLASteering(BLABase):
         for i,p in enumerate(self.cfg_ports):
             if p == 0:
                 continue
-            d=Motor(_bla_ports[i], dir[i%2])
+            d=Motor(bla_ports[i], dir[i%2])
             #d.control.limits(speed=2000,acceleration=15000,duty=100,torque=1500)
             #d.control.limits(speed=1800,acceleration=5000)
             d.control.limits(acceleration=5000)
@@ -357,7 +373,7 @@ class BLASteering(BLABase):
             d.stop()
 
 ######################################################################
-# Existing BLAs definition tupple. Maximum 31, each one in its position in the list.
+# Existing BLAs definition tupple. Maximum 64, each one in its position in the list.
 # Each element is a tuple where first position is a BLA  object and second position a tuple of extra arguments to the BLA Object costructor 
 #
 BLABase.bla_list=(
@@ -390,7 +406,7 @@ BLABase.bla_list=(
     (BLASteering,   (_bla_ste_stepper_find_init,   90, 7, bla_dir12, bla_dir21)), # BLAStepperInit90Rev_8_9 GRAY   
     (BLASteering,   (_bla_ste_stepper_find_init,   60, 4, bla_dir11, bla_dir22))  # BLAStepperInit60_5_6    ORANGE 
 )
-        
+
 ######################################################################
 def hub_mini_error():
     # """ Flashes an error sequence for small errors
@@ -400,33 +416,6 @@ def hub_mini_error():
     hub.light.blink(bla_error_color, [200, 100])
     wait(800)
     hub.light.off() #Needed! dont ask why...
-
-######################################################################
-def config_from_parameters(n):
-    global defined_BLAs,hub
-
-    hub.light.on(bla_dev_init_color)
-    if len(n)!=14 or n[0:2]!=_bla_saved_param_prefix:
-        wait(100) # for luck
-        return False
-    try:
-        par=n[2:]
-        defined_BLAs=[]
-        for i in range(0,12,3):
-            pp=par[i:i+3]
-            if pp==BLABase.cfg_empty:
-                break
-            m=BLABase.make_from_cfg(pp)
-            defined_BLAs.append(m)
-        wait(100) # for luck
-    except ValueError as ve:
-        wait(100) # for luck
-        return False
-    except OSError as os:
-        if os.args[0] == ENODEV:
-            wait(100) # for luck
-            return False
-    return True if len(defined_BLAs) else False
 
 ######################################################################
 def check_shutdown(sw, hub_button_pressed):
@@ -440,6 +429,7 @@ def check_shutdown(sw, hub_button_pressed):
             return hub_button_pressed
 
     return None
+    
 
 ######################################################################
 def bla_play():
@@ -533,7 +523,7 @@ def bla_play():
             defined_BLAs[0].dev_stop()
         if n_def_BLAs == 2 and lp==1 and Button.LEFT in pressed:
             defined_BLAs[1].dev_stop()
-                
+                           
         for i,a in enumerate(auto_repeat):
             if a == None:
                 continue
@@ -543,6 +533,7 @@ def bla_play():
             
         prev_pressed=pressed
 
+        
 hub=CityHub()
 hub.system.set_stop_button(None)
 hub.light.blink(Color.WHITE, (200,200, 100, 400))
@@ -550,7 +541,7 @@ rem = Remote()
 hub.light.on(bla_dev_init_color)
 
 try:
-    config_from_parameters(rem.name())
+    BLABase.load_config(rem.name())
     bla_play()
 except Exception as e:
     hub.light.blink(Color.ORANGE, (100,50))

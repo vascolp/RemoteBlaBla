@@ -13,6 +13,9 @@
 # play. If the configuration is not what you want, you can go back to
 # config mode and reconfigure the behavior.
 #
+# This version should also work on an InventorHub or PrimeHub, (4 modes but 6 ports)
+# but I haven't one to test it.
+#
 # Keep in mind that this is a computer with an input device of 7 buttons
 # and an output device of just two LEDs. This is a Star Trek like
 # interface, a real YDSWIG interface: you don't see what you get.
@@ -20,21 +23,22 @@
 # No screens attached!
 #
 # There is a users manual in PDF avaiable.
+# https://github.com/vascolp/RemoteBlaBla
 #
-# Version: 0.98
+# Version: 0.99
 #
 # Author VascoLP
 #
-# Date: December 2021
+# Date: February 2022
 #
 # Installing:
-# Install Pybricks firmware with Remote Bla Bla (this program) included, on a TechnicHub
-# You should use pybricks firmware beta version v3.1.0c1 on 2021-11-19.
-# It should also run on the soon to be released pybricks version v3.1 firmware.
+# Install Pybricks firmware with Remote Bla Bla (this program) included, on a TechnicHub.
+# It should also work on an InventorHub or PrimeHub, but I haven't got one to test it.
+# You should use pybricks firmware version v3.1.0 on 2021-12-16 or later.
 #
 
 from micropython import const
-from pybricks.hubs import TechnicHub
+from pybricks.hubs import ThisHub
 from pybricks.tools import StopWatch
 from pybricks.iodevices import PUPDevice
 from pybricks.pupdevices import DCMotor, Motor, Remote
@@ -66,13 +70,13 @@ _bla_timeout=const(5*60*1000) # In config mode, after this time shutsdown
 _bla_config_tick=const(100) # Should be enough for config mode...
 _bla_play_tick=const(10) 
 _bla_init_speed=const(250) # Speed used when initializing motors
-_bla_saved_param_prefix='rb'
-_bla_ports=(Port.A, Port.B, Port.C, Port.D)
-_bla_n_ports=const(4)
 _bla_default_speed=const(1500)
+bla_n_modes=4 # possibly redefined later
+bla_n_ports=4 # possibly redefined later
+bla_ports=()
 
 _bla_version_color=Color.CYAN
-_bla_version_num=2
+_bla_version_num=3
 
 # Global variables
 hub=None # the Hub
@@ -80,14 +84,21 @@ rem=None # the Remote
 
 defined_BLAs=[] # List of defined BLAs
 
-bla_dir12=( Direction.CLOCKWISE, Direction.COUNTERCLOCKWISE )
+bla_dir12=( Direction.CLOCKWISE,        Direction.COUNTERCLOCKWISE )
 bla_dir21=( Direction.COUNTERCLOCKWISE, Direction.CLOCKWISE )
-bla_dir11=( Direction.CLOCKWISE, Direction.CLOCKWISE )
+bla_dir11=( Direction.CLOCKWISE,        Direction.CLOCKWISE )
 bla_dir22=( Direction.COUNTERCLOCKWISE, Direction.COUNTERCLOCKWISE )
 bla_pwr3=(0,33,67,100)
 bla_pwr5=(0,20,40,60,80,100)
 bla_pwr7=(0,14,29,43,57,71,86,100)
 bla_pwr9=(0,11,22,33,44,56,67,78,89,100)
+
+# Parameter saving:
+_bla_saved_param_prefix='Rb'
+_bla_cfg_empty='.'
+_bla_cfg_codes='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/' # Use Base64
+#               0123456789012345678901234567890123456789012345678901234567890123
+#                         1         2         3         4         5         6
 
 ######################################################################
 def get_dir_for_mode(mode_p, n_ports_p):
@@ -102,14 +113,72 @@ def get_dir_for_mode(mode_p, n_ports_p):
 ######################################################################
 class BLABase:
     bla_list=()
-    cfg_codes='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-'
-    cfg_empty='...'
 
+    @classmethod
+    def save_config(cls, r):
+        # Parameters saved in 12 chars 6bit coded, this way:
+        # bbbbb1
+        # bbbbb2
+        # bbbbb3
+        # bbbbb4
+        # mm2mm1
+        # mm4mm3
+        # pp00p1 - pp is the bla that uses this port
+        # pp00p2
+        # pp00p3
+        # pp00p4
+        # pp00p5
+        # pp00p6
+
+        if len(defined_BLAs) == 0:
+            return False
+        name = _bla_saved_param_prefix
+        modes=[0 for _ in range(4)]
+        ports=[None for _ in range(6)]
+        for m,b in enumerate(defined_BLAs):
+            name += _bla_cfg_codes[b.bla]
+            modes [m] = b.mode
+            for i,p in enumerate(b.cfg_ports):
+                if p:
+                    ports[i] = (m<<4)|p
+        name += _bla_cfg_empty*(4-len(defined_BLAs))
+        name += _bla_cfg_codes[modes[1]<<3|modes[0]]
+        name += _bla_cfg_codes[modes[3]<<3|modes[2]]
+        for p in ports:
+            name += _bla_cfg_empty if p == None else _bla_cfg_codes[p]
+        name += _bla_cfg_empty*(6-len(ports))
+        r.name(name)
+        return True
+        
+    @classmethod
+    def load_config(cls, name):
+        if len(name)!=14 or name[0:2]!=_bla_saved_param_prefix:
+            wait(100) # for luck
+            return False
+        name=name[2:]
+        try:
+            for i in range(bla_n_modes):
+                if name[i] == _bla_cfg_empty:
+                    break
+                bla=_bla_cfg_codes.index(name[i])
+                mode=(_bla_cfg_codes.index(name[4+i//2])>>i%2*3)&7
+                ports=[_bla_cfg_codes.index(name[p])&3 if name[p]!=_bla_cfg_empty and (_bla_cfg_codes.index(name[p])>>4)==i else 0
+                       for p in range(6,6+bla_n_ports)]
+                defined_BLAs.append(cls.bla_list[bla][0](bla, None, ports, mode, *(cls.bla_list[bla][1])))
+            return  len(defined_BLAs) > 0
+        except ValueError as ve:
+            wait(100) # for luck
+            return False
+        except OSError as os:
+            if os.args[0] == ENODEV:
+                wait(100) # for luck
+            return False        
+       
     @staticmethod
     def get_cfg_ports(ports_p):
-        cfg_ports=[0 for _ in range(_bla_n_ports)]
-        for i,p in enumerate(ports_p):
-            cfg_ports[_bla_ports.index(p)]=1
+        cfg_ports=[0 for _ in range(bla_n_ports)]
+        for p in ports_p:
+            cfg_ports[bla_ports.index(p)]=1
         return cfg_ports
     
     @classmethod
@@ -120,18 +189,6 @@ class BLABase:
     def make(cls, bla_p, ports_p, mode_p):
         return cls.bla_list[bla_p][0](bla_p, ports_p, None, mode_p, *(cls.bla_list[bla_p][1]))
 
-    @classmethod
-    def make_from_cfg(cls, cfg_p):
-        #  bbbbb. mmm.pp pppppp
-        p=(cls.cfg_codes.index(cfg_p[0])<<12)|(cls.cfg_codes.index(cfg_p[1])<<6)|(cls.cfg_codes.index(cfg_p[2]))
-        bla=(p>>13)&31
-        mode=(p>>9)&7
-        ports_mask=p&255
-        cfg_ports=[]
-        for i in range(_bla_n_ports):
-            cfg_ports.append((ports_mask>>(_bla_n_ports-i)*2-2)&3)
-        return cls.bla_list[bla][0](bla, None, cfg_ports, mode, *(cls.bla_list[bla][1]))
-    
     def __init__(self, bla_p, ports_p, cfg_ports_p, mode_p):
         self.bla=bla_p
         self.cfg_ports = self.get_cfg_ports(ports_p) if cfg_ports_p == None else cfg_ports_p
@@ -147,29 +204,21 @@ class BLABase:
         rem.light.on(Color.MAGENTA)
         rem.light.on(bla_play_color)
 
-    def get_cfg(self):
-        #  bbbbb. mmm.pp pppppp
-        ports_mask=0
-        for i,p in enumerate(self.cfg_ports):
-            ports_mask |= p<<((_bla_n_ports-i)*2-2)
-        p=(self.bla<<13)|(self.mode<<9)|ports_mask
-        return ''.join((self.cfg_codes[p>>12&0b111111], self.cfg_codes[p>>6&0b111111], self.cfg_codes[p&0b111111]))
-        
 ######################################################################
 class BLAStepsMotor(BLABase):
 
     @staticmethod
     def get_cfg_ports(ports_p):
-        cfg_ports=[0 for _ in range(_bla_n_ports)]
+        cfg_ports=[0 for _ in range(bla_n_ports)]
         for i,p in enumerate(ports_p):
             try:
                 td=PUPDevice(p)
                 did=td.info()['id']
                 if did in (1,2): # Powered Up Medium Motor, Powered Up Train Motor (sensorless motors)
-                    cfg_ports[_bla_ports.index(p)]=2
+                    cfg_ports[bla_ports.index(p)]=2
                 #elif did in (8): # Powered Up Lights - should work but I don't have any
                 else: # Assume motor with sensor
-                    cfg_ports[_bla_ports.index(p)]=1
+                    cfg_ports[bla_ports.index(p)]=1
             except OSError as ex:
                 raise ValueError('Invalid device type!') # Comunicate that the given device is not valid
         return cfg_ports
@@ -203,9 +252,9 @@ class BLAStepsMotor(BLABase):
                 continue
             d = None
             if p == 1:
-                d=Motor(_bla_ports[i], dir[i%2])
+                d=Motor(bla_ports[i], dir[i%2])
             elif p == 2:
-                d=DCMotor(_bla_ports[i], dir[i%2])
+                d=DCMotor(bla_ports[i], dir[i%2])
             self.devices.append(d)
 
             
@@ -289,7 +338,7 @@ class BLASteering(BLABase):
         for i,p in enumerate(self.cfg_ports):
             if p == 0:
                 continue
-            d=Motor(_bla_ports[i], dir[i%2])
+            d=Motor(bla_ports[i], dir[i%2])
             #d.control.limits(speed=2000,acceleration=15000,duty=100,torque=1500)
             #d.control.limits(speed=1800,acceleration=5000)
             d.control.limits(acceleration=5000)
@@ -403,7 +452,7 @@ class BLASteering(BLABase):
             d.stop()
 
 ######################################################################
-# Existing BLAs definition tupple. Maximum 31, each one in its position in the list.
+# Existing BLAs definition tupple. Maximum 64, each one in its position in the list.
 # Each element is a tuple where first position is a BLA  object and second position a tuple of extra arguments to the BLA Object costructor 
 #
 BLABase.bla_list=(
@@ -441,7 +490,7 @@ BLABase.bla_list=(
 def set_bla_config_BLA_blink(m):
     # """ Sets the hub light for m config mode definition
     # """
-    
+    # Defined only up to 40 combinations...
     global hub
     c= (
         Color.CYAN   ,
@@ -456,9 +505,10 @@ def set_bla_config_BLA_blink(m):
     b=(
         (5, 300, 1500, 5),
         (5, 200, 500, 5), 
-        (5, 100, 300, 5)
+        (5, 100, 300, 5),
+        (5, 50, 150, 5)
         )[int((m-8)/8)]
-
+    
     if m < 8: # No blinking
         hub.light.on(c)
     else:
@@ -473,33 +523,6 @@ def hub_mini_error():
     hub.light.blink(bla_error_color, [200, 100])
     wait(800)
     hub.light.off() #Needed! dont ask why...
-
-######################################################################
-def config_from_parameters(n):
-    global defined_BLAs,hub
-
-    hub.light.on(bla_dev_init_color)
-    if len(n)!=14 or n[0:2]!=_bla_saved_param_prefix:
-        wait(100) # for luck
-        return False
-    try:
-        par=n[2:]
-        defined_BLAs=[]
-        for i in range(0,12,3):
-            pp=par[i:i+3]
-            if pp==BLABase.cfg_empty:
-                break
-            m=BLABase.make_from_cfg(pp)
-            defined_BLAs.append(m)
-        wait(100) # for luck
-    except ValueError as ve:
-        wait(100) # for luck
-        return False
-    except OSError as os:
-        if os.args[0] == ENODEV:
-            wait(100) # for luck
-            return False
-    return True if len(defined_BLAs) else False
 
 ######################################################################
 def check_shutdown(sw, hub_button_pressed):
@@ -582,16 +605,12 @@ def bla_config():
                 # It also saves configuration
                 hub.light.blink(Color.GREEN if len(defined_BLAs)>0 else Color.RED, [100, 50])
                 wait(500)
-                if len(defined_BLAs)>0:
-                    cfg_par = _bla_saved_param_prefix
-                    for b in defined_BLAs:
-                        cfg_par += b.get_cfg()
-                    cfg_par += BLABase.cfg_empty*(_bla_n_ports-len(defined_BLAs))
-                    rem.name(cfg_par)
+                if BLABase.save_config(rem):
                     break
                 else:
                     set_bla_config_BLA_blink(cur_BLA)
                     continue
+                
             if lp==2: # Shift-Center button deletes last BLA created
                 if len(defined_BLAs) == 0: # nothing to delete
                     hub_mini_error()
@@ -599,7 +618,7 @@ def bla_config():
                     b=defined_BLAs[len(defined_BLAs)-1]
                     for i,p in enumerate(b.cfg_ports):
                         if p != 0:
-                            used_ports.remove(_bla_ports[i])
+                            used_ports.remove(bla_ports[i])
                     defined_BLAs.remove(b)
                     hub.light.blink(bla_send_color, [50, 50]) # Show user success message
                     wait(300)
@@ -631,11 +650,16 @@ def bla_config():
         else:
             continue
 
+        if len(defined_BLAs)==bla_n_modes : # warn (because on PrimeHub there are more ports than modes)
+            hub_mini_error()
+            set_bla_config_BLA_blink(cur_BLA)
+            continue
+
         new_ports=[]
         ports_mask=0
         hub.light.on(Color.RED*0.4) # Put hub light in red while detecting devices, because device detection fails sometimes
                                     # specially with DCMotors and low battery
-        for i,p in enumerate(_bla_ports):
+        for i,p in enumerate(bla_ports):
             if p in used_ports:
                 continue
             try:
@@ -843,13 +867,16 @@ def bla_play():
             
         prev_pressed=pressed
 
-hub=TechnicHub()
+hub=ThisHub()
+bla_n_ports = { '<TechnicHub>': 4, '<PrimeHub>': 6, '<InventorHub>': 6 }[str(hub)]
+bla_ports=(Port.A,Port.B,Port.C,Port.D) if bla_n_ports==4 else (Port.A,Port.B,Port.C,Port.D,Port.E,Port.F)
+bla_n_modes = 4
 hub.system.set_stop_button(None)
 hub.light.blink(Color.WHITE, (200,200, 100, 400))
 rem = Remote()
 rem.light.on(bla_play_color)
-if not config_from_parameters(rem.name()):
-    bla_config()
+if not BLABase.load_config(rem.name()):
+     bla_config()
 
 while True:
     try:
