@@ -1,7 +1,7 @@
 # Remote Bla Bla
 
 Remote Bla Bla is a Pybricks (https://pybricks.com) program for a LEGO
-PoweredUp TechnicHub and a LEGO PoweredUp Remote Control where you
+__PoweredUp TechnicHub__ and a __LEGO PoweredUp Remote Control__ where you
 first define how each device answers to remote control button actions
 (config mode) and then you play with your MOC/Set using the defined
 configuration (play mode).
@@ -17,7 +17,9 @@ interface, a real YDSWIG interface: you don't see what you get.
 However, once you learn it, you will notice that it is simple.
 No screens attached!
 
-Here is an example video: https://youtu.be/Sl9IE1FV5Xk
+Here is an example video for configuration mode: [RemoteBlaBla](https://youtu.be/Sl9IE1FV5Xk).
+Here is an example video for play mode with Zetros: [RemoteBlaBlaZetros](https://youtu.be/I7dKQUzhrtY).
 
-There is a users manual in PDF avaiable.
+Users manual in PDF is avaiable [here](RemoteBlaBla.pdf).
 
+If you like this work, please consider [donation here](https://www.paypal.com/donate/?business=RSDKYYLUPRHDQ&no_recurring=1&item_name=Please+donate+to+help+me+continue+this+free+work.%0AThank+you%21&currency_code=EUR) to help me creating other free tools.
