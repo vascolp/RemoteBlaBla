@@ -18,6 +18,7 @@ However, once you learn it, you will notice that it is simple.
 No screens attached!
 
 Here is an example video for configuration mode: [RemoteBlaBla](https://youtu.be/Sl9IE1FV5Xk).
+
 Here is an example video for play mode with Zetros: [RemoteBlaBlaZetros](https://youtu.be/I7dKQUzhrtY).
 
 Users manual in PDF is avaiable [here](RemoteBlaBla.pdf).
