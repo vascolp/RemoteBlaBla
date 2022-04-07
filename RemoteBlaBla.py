@@ -25,11 +25,11 @@
 # There is a users manual in PDF avaiable.
 # https://github.com/vascolp/RemoteBlaBla
 #
-# Version: 1.0
+# Version: 1.01
 #
 # Author VascoLP: vascolp.lego@gmail.com
 #
-# Date: March 2022
+# Date: April 2022
 #
 # Installing:
 # Install Pybricks firmware with Remote Bla Bla (this program) included, on a TechnicHub.
@@ -39,7 +39,6 @@
 # Note: all this code would be much nicer with a class for each BLA mode. But classes
 # use much more memory than if/else statments... 
 #
-#elif uses more memory than if
 
 from micropython import const
 from pybricks.hubs import ThisHub
@@ -83,7 +82,7 @@ bla_n_ports=4 # possibly redefined later
 bla_ports=()
 
 _bla_version_color=Color.CYAN
-_bla_version_num=4
+_bla_version_num=5
 
 # Global variables
 hub=None # the Hub
@@ -115,9 +114,11 @@ class BLABase:
             return False
         name=name_p[2:]
         try:
+            wait(100) # for luck
             for i in range(bla_n_modes):
                 if name[i] == _bla_cfg_empty:
                     break
+                wait(100) # for luck
                 bla=_bla_cfg_codes.index(name[i])
                 mode=(_bla_cfg_codes.index(name[4+i//2])>>i%2*3)&7
                 ports=[_bla_cfg_codes.index(name[p])&3 if name[p]!=_bla_cfg_empty and (_bla_cfg_codes.index(name[p])>>4)==i else 0

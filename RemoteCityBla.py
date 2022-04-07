@@ -18,11 +18,11 @@
 # There is a users manual in PDF avaiable.
 # https://github.com/vascolp/RemoteBlaBla
 #
-# Version: 1.0
+# Version: 1.01
 #
 # Author VascoLP: vascolp.lego@gmail.com
 #
-# Date: March 2022
+# Date: April 2022
 #
 # Installing:
 # Install Pybricks firmware with Remote Bla Bla (this program) included, on a CityHub.
@@ -91,9 +91,11 @@ class BLABase:
 
         name=name_p[2:]
 
+        wait(100) # for luck
         for i in range(bla_n_modes):
             if name[i] == _bla_cfg_empty:
                 break
+            wait(100) # for luck
             bla=_bla_cfg_codes.index(name[i])
             mode=(_bla_cfg_codes.index(name[4+i//2])>>i%2*3)&7
             ports=[_bla_cfg_codes.index(name[p])&3 if name[p]!=_bla_cfg_empty and (_bla_cfg_codes.index(name[p])>>4)==i else 0

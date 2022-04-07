@@ -2,6 +2,9 @@
 
 # Changelog
 
+## [1.01] - 2022-04-07
+	- Added some wait(100) in the middle of the load_config function.
+	  It seems to have much less failures at startup with this waits...
 ## [1.00] - 2022-03-31
 	- Big effort to squeeze all this stuff in CityHub short memory: succeded!
 	- Reduced timeout value to 250ms
