@@ -21,6 +21,8 @@ Here is an example video for configuration mode: [RemoteBlaBla](https://youtu.be
 
 Here is an example video for play mode with Zetros: [RemoteBlaBlaZetros](https://youtu.be/I7dKQUzhrtY).
 
+Here is an example video of 42104 Race Truck RC MOD: [42104 RC](https://youtu.be/E4OErWqwlBo) (instructions on [rebrickable](https://rebrickable.com/mocs/MOC-113882/vascolp/42104-race-truck-rc).
+
 Users manual in PDF is avaiable [here](RemoteBlaBla.pdf).
 
 Some configuration examples [here](SetsModes.md).
