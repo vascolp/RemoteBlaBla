@@ -27,4 +27,4 @@ Users manual in PDF is avaiable [here](RemoteBlaBla.pdf).
 
 Some configuration examples [here](SetsModes.md).
 
-If you like this work, please consider [donation here](https://www.paypal.com/donate/?business=RSDKYYLUPRHDQ&no_recurring=1&item_name=Please+donate+to+help+me+continue+this+free+work.%0AThank+you%21&currency_code=EUR) to help me creating other free tools.
+If you like this work, please consider [donation here](https://www.paypal.com/donate/?business=RSDKYYLUPRHDQ&no_recurring=1&item_name=%5BBlaBla%5D+Please+donate+to+help+me+continue+this+free+work.%0AThank+you%21&currency_code=EUR) to help me creating other free tools.
