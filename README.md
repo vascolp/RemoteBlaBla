@@ -28,6 +28,7 @@ Users manual in PDF is avaiable [here](RemoteBlaBla.pdf).
 Some configuration examples [here](SetsModes.md).
 
 
+### If you like this work, please consider [donation here](https://www.paypal.com/donate/?business=RSDKYYLUPRHDQ&no_recurring=1&item_name=Please+donate+to+help+me+continue+this+free+work.%0AThank+you%21&currency_code=EUR) to help me creating other free tools.
 
 
 # Installing Remote Bla Bla
@@ -63,6 +64,5 @@ Remote Bla Bla does not work with Pybricks 3.2.
 This means that if you paste Remote Bla Bla [code](RemoteBlaBla.py) to pybricks code on v3.2 it will not work as expected.
 This is because Remote Bla Bla demands the ability to connect, disconnect and reconnect devices to the Hub and some of the
 improvements in Pybricks v3.2 removed the ability to do this. Pybricks team is aware of the problem and, hopefully, a future
-version will solve this issue. Meanwhile, the Remote Bla Bla firmeware provided above is made using Pybricks v3.1.
+version will solve this issue. Meanwhile, the Remote Bla Bla firmware provided above is made using Pybricks v3.1.
 
-### If you like this work, please consider [donation here](https://www.paypal.com/donate/?business=RSDKYYLUPRHDQ&no_recurring=1&item_name=Please+donate+to+help+me+continue+this+free+work.%0AThank+you%21&currency_code=EUR) to help me creating other free tools.
