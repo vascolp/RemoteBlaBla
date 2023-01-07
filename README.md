@@ -21,6 +21,8 @@ Here is an example video for configuration mode: [RemoteBlaBla](https://youtu.be
 
 Here is an example video for play mode with Zetros: [RemoteBlaBlaZetros](https://youtu.be/I7dKQUzhrtY).
 
+Here is an example video of 42104 Race Truck RC MOD: [42104 RC](https://youtu.be/E4OErWqwlBo) (instructions on [rebrickable](https://rebrickable.com/mocs/MOC-113882/vascolp/42104-race-truck-rc)).
+
 Users manual in PDF is avaiable [here](RemoteBlaBla.pdf).
 
 Some configuration examples [here](SetsModes.md).
@@ -65,3 +67,4 @@ improvements in Pybricks v3.2 removed the ability to do this. Pybricks team is a
 version will solve this issue. Meanwhile, the Remote Bla Bla firmeware provided above is made using Pybricks v3.1.
 
 ### If you like this work, please consider [donation here](https://www.paypal.com/donate/?business=RSDKYYLUPRHDQ&no_recurring=1&item_name=Please+donate+to+help+me+continue+this+free+work.%0AThank+you%21&currency_code=EUR) to help me creating other free tools.
+If you like this work, please consider [donation here](https://www.paypal.com/donate/?business=RSDKYYLUPRHDQ&no_recurring=1&item_name=%5BBlaBla%5D+Please+donate+to+help+me+continue+this+free+work.%0AThank+you%21&currency_code=EUR) to help me creating other free tools.
