@@ -27,7 +27,6 @@ Users manual in PDF is avaiable [here](RemoteBlaBla.pdf).
 
 Some configuration examples [here](SetsModes.md).
 
-If you like this work, please consider [donation here](https://www.paypal.com/donate/?business=RSDKYYLUPRHDQ&no_recurring=1&item_name=Please+donate+to+help+me+continue+this+free+work.%0AThank+you%21&currency_code=EUR) to help me creating other free tools.
 
 
 
@@ -37,8 +36,8 @@ The best way to install Remote Bla Bla is to install pybricks firmware with Remo
 These instructions explain how to do that.
 
 1. Download Remote Bla Bla firmware from here:
-  * Technic hub: [TechnicHub](firmware/pybricks-technichub-v3.1.0_RemoteBlaBla_v1.01_cyan4.zip)
-  * City hub: [CityHub](firmware/pybricks-cityhub-v3.1.0_RemoteBlaBla_v1.01.zip)
+   * Technic hub: [TechnicHub](firmware/pybricks-technichub-v3.1.0_RemoteBlaBla_v1.01_cyan4.zip)
+   * City hub: [CityHub](firmware/pybricks-cityhub-v3.1.0_RemoteBlaBla_v1.01.zip)
 2. Open `https://code.pybricks.com`
 3. Click on `Settings & Help`, if needed to open the list of options (the gear on the left) 
 4. Select `Install Pybricks Firmware`
@@ -50,7 +49,7 @@ Thats all!
 
 Now, when you start your hub, it will start Remote Bla Bla.
 
-Notice that only Technic Hubs have a config mode, City Hubs need to be configured with the help of another Technic Hub (not enough memory on City Hub)..
+Notice that only Technic Hubs have a config mode, City Hubs need to be configured with the help of another Technic Hub (not enough memory on City Hub).
 Refer to [Remote Bla Bla manual](RemoteBlaBla.pdf) to understand how it works.
 If this is your first time with Remote Bla Bla, you really need to read the manual, there is no intuitive interface when all you have is 7 buttons and 2 lights.
 But that is the whole point of Remote Bla Bla: being able to use a hub in MOCs without a screen attached.
@@ -67,4 +66,3 @@ improvements in Pybricks v3.2 removed the ability to do this. Pybricks team is a
 version will solve this issue. Meanwhile, the Remote Bla Bla firmeware provided above is made using Pybricks v3.1.
 
 ### If you like this work, please consider [donation here](https://www.paypal.com/donate/?business=RSDKYYLUPRHDQ&no_recurring=1&item_name=Please+donate+to+help+me+continue+this+free+work.%0AThank+you%21&currency_code=EUR) to help me creating other free tools.
-If you like this work, please consider [donation here](https://www.paypal.com/donate/?business=RSDKYYLUPRHDQ&no_recurring=1&item_name=%5BBlaBla%5D+Please+donate+to+help+me+continue+this+free+work.%0AThank+you%21&currency_code=EUR) to help me creating other free tools.
