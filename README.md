@@ -61,7 +61,7 @@ If you need to return to LEGO firmware, open `https://code.pybricks.com` and sel
 
 Remote Bla Bla does not work with Pybricks 3.2.
 This means that if you paste Remote Bla Bla [code](RemoteBlaBla.py) to pybricks code on v3.2 it will not work as expected.
-This is because Remote Bla Bla demands the ability to connect, disconnect and reconnect devices to the Hub and some of the
+This is because Remote Bla Bla requires the ability to connect, disconnect and reconnect devices to the Hub and some of the
 improvements in Pybricks v3.2 removed the ability to do this. Pybricks team is aware of the problem and, hopefully, a future
-version will solve this issue. Meanwhile, the Remote Bla Bla firmware provided above is made using Pybricks v3.1.
+version will solve this issue. Meanwhile, the Remote Bla Bla firmware provided above is built using Pybricks v3.1.
 
