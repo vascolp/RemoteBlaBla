@@ -48,7 +48,7 @@ from pybricks.pupdevices import DCMotor, Motor, Remote
 from pybricks.parameters import Port, Direction, Stop, Button, Color
 from pybricks.tools import wait
 from uerrno import ENODEV
-from math import trunc
+#from math import trunc
 
 _btn_RP= const(0) # Button.RIGHT_PLUS
 _btn_LP= const(1) # Button.LEFT_PLUS
