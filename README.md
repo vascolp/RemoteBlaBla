@@ -1,5 +1,9 @@
 # Remote Bla Bla
 
+##
+## RemoteBlaBla has evolved to [RemoteBlaBla 2](https://sites.google.com/view/remoteblabla/home). This page refers to RemoteBlaBla 1, which is not being developed anymore
+##
+
 Remote Bla Bla is a Pybricks (https://pybricks.com) program for a LEGO
 __PoweredUp TechnicHub__ and a LEGO __PoweredUp Remote Control__ where you
 first define how each device answers to remote control button actions
